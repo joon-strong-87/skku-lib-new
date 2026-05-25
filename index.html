@@ -36,13 +36,13 @@
     padding: 10px 14px; color: #e8e8e8; font-size: 14px; outline: none;
     transition: border-color 0.2s; width: 100%;
   }
-  input:focus { border-color: #4f6ef7; }
+  input:focus { border-color: #005C35; }
   .btn {
     padding: 11px 24px; border-radius: 8px; border: none; font-size: 14px;
     font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap;
   }
-  .btn-primary { background: #4f6ef7; color: #fff; }
-  .btn-primary:hover { background: #3d5ce0; }
+  .btn-primary { background: #005C35; color: #fff; }
+  .btn-primary:hover { background: #004a2a; }
   .btn-primary:disabled { background: #2a2d3a; color: #555; cursor: not-allowed; }
   .btn-success { background: #1a9e5a; color: #fff; display: none; }
   .btn-success:hover { background: #158c4e; }
@@ -58,7 +58,7 @@
     background: transparent; color: #888; border: 1px solid #2a2d3a;
     padding: 8px 14px; font-size: 12px;
   }
-  .btn-ghost:hover { border-color: #4f6ef7; color: #4f6ef7; }
+  .btn-ghost:hover { border-color: #005C35; color: #005C35; }
 
   /* 즐겨찾기 섹션 */
   .fav-section {
@@ -110,7 +110,7 @@
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: #1e2235; }
   .fav-table-wrap tr:hover td { background: #1c1a0c; }
-  td.reg { color: #4f6ef7; font-family: monospace; white-space: nowrap; }
+  td.reg { color: #005C35; font-family: monospace; white-space: nowrap; }
   td.title { max-width: 240px; }
   td.empty { color: #444; font-style: italic; }
 
@@ -129,7 +129,7 @@
   .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: #888; margin-bottom: 8px; }
   .progress-bar-bg { background: #0f1117; border-radius: 6px; height: 8px; overflow: hidden; }
   .progress-bar {
-    background: linear-gradient(90deg, #4f6ef7, #7c5ef5);
+    background: linear-gradient(90deg, #005C35, #7c5ef5);
     height: 100%; width: 0%; border-radius: 6px; transition: width 0.3s ease;
   }
   .log {
@@ -148,7 +148,7 @@
     background: #0f1117; border-radius: 8px; border: 1px solid #2a2d3a;
     font-size: 13px; color: #aaa;
   }
-  .summary span { color: #4f6ef7; font-weight: 700; }
+  .summary span { color: #005C35; font-weight: 700; }
   .actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
 
   /* 퀵셋 팝업 */
@@ -185,7 +185,7 @@
     color: #ccc; font-size: 12px; font-weight: 600; padding: 7px 14px;
     cursor: pointer; transition: all 0.15s;
   }
-  .qs-btn:hover { border-color: #4f6ef7; color: #4f6ef7; background: #141828; }
+  .qs-btn:hover { border-color: #005C35; color: #005C35; background: #141828; }
   .qs-btn:active { transform: scale(0.96); }
   .qs-close {
     display: block; margin-top: 20px; width: 100%;
@@ -198,7 +198,7 @@
     background: #1a1d27; color: #aaa; border: 1px solid #2a2d3a;
     font-size: 13px; padding: 11px 18px;
   }
-  .btn-quickset:hover { border-color: #4f6ef7; color: #4f6ef7; }
+  .btn-quickset:hover { border-color: #005C35; color: #005C35; }
 
   .section-label {
     font-size: 11px; color: #555; font-weight: 600; letter-spacing: 0.08em;
@@ -207,7 +207,7 @@
   }
   .toast {
     position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
-    background: #23263a; border: 1px solid #4f6ef7; color: #e8e8e8;
+    background: #23263a; border: 1px solid #005C35; color: #e8e8e8;
     padding: 12px 24px; border-radius: 10px; font-size: 13px;
     box-shadow: 0 4px 24px #0008; z-index: 999;
     animation: fadeInUp 0.25s ease;
@@ -226,7 +226,7 @@
     text-decoration-color: #555;
     transition: color 0.15s;
   }
-  .author-btn:hover { color: #7c9fff; text-decoration-color: #4f6ef7; }
+  .author-btn:hover { color: #7c9fff; text-decoration-color: #005C35; }
   .author-popup {
     position: fixed; z-index: 9999;
     width: 280px;
@@ -299,7 +299,13 @@
 
 <!-- 수집기 카드 -->
 <div class="card">
-  <h1>📚 성균관대 신착도서 수집기</h1>
+  <h1 style="display:flex;align-items:center;gap:12px;">
+    <svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+      <rect width="36" height="36" rx="6" fill="#005C35"/>
+      <text x="18" y="24" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" font-weight="700" fill="#fff" letter-spacing="0.5">SKKU</text>
+    </svg>
+    성균관대 신착도서 수집기
+  </h1>
   <p class="subtitle">등록번호 범위를 입력하면 제목·저자·출판사·출판년도를 자동으로 가져와요</p>
 
   <!-- 빠른 선택 인라인 -->
@@ -351,7 +357,7 @@
         <tr>
           <th></th>
           <th>등록번호</th><th>제목</th><th>저자</th><th>출판사</th><th>출판년도</th>
-          <th>청구기호</th><th>상태</th><th>위치</th><th>입수일</th>
+          <th>청구기호</th><th>상태</th><th>위치</th><th>입수일</th><th></th>
         </tr>
       </thead>
       <tbody id="tbody"></tbody>
@@ -397,7 +403,7 @@ function renderFavSection() {
     <thead><tr>
       <th></th>
       <th>등록번호</th><th>제목</th><th>저자</th><th>출판사</th><th>출판년도</th>
-      <th>청구기호</th><th>상태</th><th>위치</th><th>입수일</th>
+      <th>청구기호</th><th>상태</th><th>위치</th><th>입수일</th><th></th>
     </tr></thead>
   `;
   const tbody = document.createElement('tbody');
@@ -413,10 +419,18 @@ function renderFavSection() {
   document.getElementById('favArea').appendChild(wrap);
 }
 
+function getLocationAlias(name) {
+  if (!name) return '';
+  if (name.includes('중앙') || name.includes('법학') || name.includes('EM1') || name.includes('인문')) return '중앙';
+  if (name.includes('삼성') || name.includes('Samsung') || name.includes('EM2')) return '삼성';
+  return name;
+}
+
 function makeRow(row, isFav) {
   const tr = document.createElement('tr');
   const starChar = isFav ? '★' : '☆';
   const starClass = isFav ? 'active' : '';
+  const locationAlias = getLocationAlias(row.location);
   tr.innerHTML = `
     <td style="text-align:center;width:32px">
       <button class="star-btn ${starClass}" onclick="toggleFav('${row.reg}')" title="${isFav ? '즐겨찾기 해제' : '즐겨찾기 추가'}">${starChar}</button>
@@ -428,8 +442,9 @@ function makeRow(row, isFav) {
     <td>${row.year || ''}</td>
     <td style="font-family:monospace;font-size:11px;white-space:nowrap">${row.callNumber || ''}</td>
     <td>${row.status || ''}</td>
-    <td>${row.location || ''}</td>
+    <td>${locationAlias}</td>
     <td>${row.dateReceived || ''}</td>
+    <td style="width:44px;text-align:center;">${row.thumbnail ? `<img src="${row.thumbnail}" style="width:36px;height:52px;object-fit:cover;border-radius:3px;display:block;margin:auto;" onerror="this.style.display='none'">` : ''}</td>
   `;
   return tr;
 }
@@ -565,7 +580,12 @@ async function startFetch() {
       if (matched) {
         const item = data.data.list[0];
         const { publisher, year } = parsePublication(item.publication || '');
-        const bv = (item.branchVolumes || [])[0] || {};
+
+        // 등록번호 prefix에 맞는 브랜치만 선택
+        const BRANCH_ID_MAP = { 'EM': 1, 'EE': 2 };
+        const targetBranchId = BRANCH_ID_MAP[startReg.prefix];
+        const bv = (item.branchVolumes || []).find(b => b.id === targetBranchId)
+                || (item.branchVolumes || [])[0] || {};
         const row = {
           reg,
           title: item.titleStatement || '',
@@ -577,7 +597,8 @@ async function startFetch() {
           location: bv.name || '',
           dateReceived: item.dateReceived || '',
           pub: item.publication || '',
-          isbn: item.isbn || ''
+          isbn: item.isbn || '',
+          thumbnail: item.thumbnailUrl || ''
         };
         allResults.push(row);
         if (favorites[reg]) { favorites[reg] = row; saveFavorites(); }
