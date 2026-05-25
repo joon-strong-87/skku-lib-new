@@ -430,7 +430,7 @@ function makeRow(row, isFav) {
     </td>
     <td class="reg">${row.reg}</td>
     <td class="title ${!row.title ? 'empty' : ''}">${row.title || '—'}</td>
-    <td>${row.author ? `<button class="author-btn" onclick="showAuthorPopup(event, '${row.author.replace(/'/g,"\\'")}', '${(row.title||'').replace(/'/g,"\\'")}')">` + row.author + `</button>` : ''}</td>
+    <td>${row.author ? `<button class="author-btn" data-author="${row.author.replace(/"/g,'&quot;')}" data-title="${(row.title||'').replace(/"/g,'&quot;')}">${row.author}</button>` : ''}</td>
     <td>${row.publisher || ''}</td>
     <td>${row.year || ''}</td>
     <td style="font-family:monospace;font-size:11px;white-space:nowrap">${row.callNumber || ''}</td>
@@ -752,43 +752,48 @@ function closeAuthorPopup() {
   document.getElementById('authorPopup').classList.remove('visible');
 }
 
-async function showAuthorPopup(e, author, bookTitle) {
-  e.stopPropagation();
+
+document.addEventListener('click', async function(e) {
   const popup = document.getElementById('authorPopup');
-  const apName = document.getElementById('apName');
-  const apBody = document.getElementById('apBody');
 
-  apName.textContent = author;
-  apBody.innerHTML = '<div class="ap-loading"><span class="ap-dot">●</span><span class="ap-dot">●</span><span class="ap-dot">●</span> AI가 저자 정보를 요약 중...</div>';
+  // 저자 버튼 클릭
+  if (e.target.classList.contains('author-btn')) {
+    const btn = e.target;
+    const author = btn.dataset.author;
+    const bookTitle = btn.dataset.title || '';
+    const apName = document.getElementById('apName');
+    const apBody = document.getElementById('apBody');
 
-  // 버튼 위치 기준으로 팝업 위치 조정
-  const rect = (e.currentTarget || e.target).getBoundingClientRect();
-  let top = rect.bottom + window.scrollY + 8;
-  let left = rect.left + window.scrollX;
-  if (left + 290 > window.innerWidth) left = window.innerWidth - 295;
-  popup.style.top = top + 'px';
-  popup.style.left = left + 'px';
-  popup.classList.add('visible');
+    apName.textContent = author;
+    apBody.innerHTML = '<div class="ap-loading"><span class="ap-dot">●</span><span class="ap-dot">●</span><span class="ap-dot">●</span> AI가 저자 정보를 요약 중...</div>';
 
-  if (authorCache[author]) {
-    apBody.textContent = authorCache[author];
+    const rect = btn.getBoundingClientRect();
+    let top = rect.bottom + window.scrollY + 8;
+    let left = rect.left + window.scrollX;
+    if (left + 290 > window.innerWidth) left = window.innerWidth - 295;
+    popup.style.top = top + 'px';
+    popup.style.left = left + 'px';
+    popup.classList.add('visible');
+
+    if (authorCache[author]) {
+      apBody.textContent = authorCache[author];
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/author?author=${encodeURIComponent(author)}&title=${encodeURIComponent(bookTitle)}`);
+      const data = await res.json();
+      const text = data.bio || '정보를 불러올 수 없어요.';
+      authorCache[author] = text;
+      apBody.textContent = text;
+    } catch(err) {
+      apBody.textContent = '저자 정보를 불러오는 중 오류가 발생했어요.';
+    }
     return;
   }
 
-  try {
-    const res = await fetch(`/api/author?author=${encodeURIComponent(author)}&title=${encodeURIComponent(bookTitle)}`);
-    const data = await res.json();
-    const text = data.bio || '정보를 불러올 수 없어요.';
-    authorCache[author] = text;
-    apBody.textContent = text;
-  } catch(err) {
-    apBody.textContent = '저자 정보를 불러오는 중 오류가 발생했어요.';
-  }
-}
-
-document.addEventListener('click', function(e) {
-  const popup = document.getElementById('authorPopup');
-  if (popup && !popup.contains(e.target) && !e.target.classList.contains('author-btn')) {
+  // 팝업 바깥 클릭 시 닫기
+  if (popup && !popup.contains(e.target)) {
     popup.classList.remove('visible');
   }
 });
