@@ -430,7 +430,7 @@ function makeRow(row, isFav) {
     </td>
     <td class="reg">${row.reg}</td>
     <td class="title ${!row.title ? 'empty' : ''}">${row.title || '—'}</td>
-    <td>${row.author ? `<button class="author-btn" onclick="showAuthorPopup(event, '${row.author.replace(/'/g,"\\'")}', '${(row.title||'').replace(/'/g,"\\'")}')}">${row.author}</button>` : ''}</td>
+    <td>${row.author ? `<button class="author-btn" onclick="showAuthorPopup(event, '${row.author.replace(/'/g,"\\'")}', '${(row.title||'').replace(/'/g,"\\'")}')">` + row.author + `</button>` : ''}</td>
     <td>${row.publisher || ''}</td>
     <td>${row.year || ''}</td>
     <td style="font-family:monospace;font-size:11px;white-space:nowrap">${row.callNumber || ''}</td>
