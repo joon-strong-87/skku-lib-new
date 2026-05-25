@@ -429,7 +429,7 @@ function makeRow(row, isFav) {
       <button class="star-btn ${starClass}" onclick="toggleFav('${row.reg}')" title="${isFav ? '즐겨찾기 해제' : '즐겨찾기 추가'}">${starChar}</button>
     </td>
     <td class="reg">${row.reg}</td>
-    <td class="title ${!row.title ? 'empty' : ''}">${row.title || '—'}</td>
+    <td class="title ${!row.title ? 'empty' : ''}">${row.title ? `<a href="https://search.kyobobook.co.kr/search?keyword=${encodeURIComponent(row.title)}" target="_blank" style="color:#ccc;text-decoration:underline;text-decoration-style:dashed;text-underline-offset:3px;">${row.title}</a>` : '—'}</td>
     <td>${row.author ? `<button class="author-btn" data-author="${row.author.replace(/"/g,'&quot;')}" data-title="${(row.title||'').replace(/"/g,'&quot;')}">${row.author}</button>` : ''}</td>
     <td>${row.publisher || ''}</td>
     <td>${row.year || ''}</td>
