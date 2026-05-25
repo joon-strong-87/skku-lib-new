@@ -1,27 +1,55 @@
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const { author, title } = req.query;
+  const { author, title, isbn } = req.query;
+  if (!author) return res.status(400).json({ error: 'author 필요' });
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': process.env.ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 300,
-      messages: [{
-        role: 'user',
-        content: `저자 "${author}"를 3~4문장으로 소개해줘. "${title}" 책의 저자야. 확실하지 않은 정보는 포함하지 말고, 잘 모르면 솔직히 말해줘. 마크다운 없이 텍스트만.`
-      }]
-    })
-  });
+  const ALADIN_KEY = process.env.ALADIN_API_KEY;
 
-  const data = await response.json();
-  const bio = data.content?.[0]?.text || '정보를 가져올 수 없어요.';
-  res.status(200).json({ bio });
+  try {
+    // ISBN으로 알라딘 API 조회
+    if (isbn) {
+      const url = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?ttbkey=${ALADIN_KEY}&itemIdType=ISBN13&ItemId=${isbn}&output=js&Version=20131101&OptResult=authorInfo`;
+      const aladinRes = await fetch(url);
+      const text = await aladinRes.text();
+      const data = JSON.parse(text);
+      const items = JSON.parse(data.item || '[]');
+      const item = items[0];
+
+      if (item) {
+        // authorInfo가 있으면 우선 사용, 없으면 description 사용
+        const bio = item.subInfo?.authorInfo?.[0]?.authorInfo
+          || item.description
+          || null;
+
+        if (bio && bio.trim()) {
+          return res.status(200).json({ bio: bio.trim() });
+        }
+      }
+    }
+
+    // ISBN으로 못 가져오면 저자명으로 검색
+    const searchUrl = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?ttbkey=${ALADIN_KEY}&Query=${encodeURIComponent(author)}&QueryType=Author&MaxResults=1&output=js&Version=20131101&OptResult=authorInfo`;
+    const searchRes = await fetch(searchUrl);
+    const searchText = await searchRes.text();
+    const searchData = JSON.parse(searchText);
+    const searchItems = JSON.parse(searchData.item || '[]');
+    const searchItem = searchItems[0];
+
+    if (searchItem) {
+      const bio = searchItem.subInfo?.authorInfo?.[0]?.authorInfo
+        || searchItem.description
+        || null;
+      if (bio && bio.trim()) {
+        return res.status(200).json({ bio: bio.trim() });
+      }
+    }
+
+    return res.status(200).json({ bio: '저자 소개 정보가 없어요.' });
+
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
 }
