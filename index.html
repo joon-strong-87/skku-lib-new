@@ -430,7 +430,7 @@ function makeRow(row, isFav) {
     </td>
     <td class="reg">${row.reg}</td>
     <td class="title ${!row.title ? 'empty' : ''}">${row.title ? `<a href="https://search.kyobobook.co.kr/search?keyword=${encodeURIComponent(row.title)}" target="_blank" style="color:#ccc;text-decoration:underline;text-decoration-style:dashed;text-underline-offset:3px;">${row.title}</a>` : '—'}</td>
-    <td>${row.author ? `<button class="author-btn" data-author="${row.author.replace(/"/g,'&quot;')}" data-title="${(row.title||'').replace(/"/g,'&quot;')}">${row.author}</button>` : ''}</td>
+    <td>${row.author ? `<a href="https://search.kyobobook.co.kr/search?keyword=${encodeURIComponent(row.author)}&gbCode=TOT&target=author" target="_blank" style="color:#ccc;text-decoration:underline;text-decoration-style:dashed;text-underline-offset:3px;">${row.author}</a>` : ''}</td>
     <td>${row.publisher || ''}</td>
     <td>${row.year || ''}</td>
     <td style="font-family:monospace;font-size:11px;white-space:nowrap">${row.callNumber || ''}</td>
