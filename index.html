@@ -217,6 +217,36 @@
     from { opacity:0; transform: translateX(-50%) translateY(10px); }
     to   { opacity:1; transform: translateX(-50%) translateY(0); }
   }
+  /* 저자 팝업 */
+  .author-btn {
+    background: none; border: none; cursor: pointer;
+    color: #ccc; font-size: 12px; font-family: inherit;
+    padding: 0; text-decoration: underline;
+    text-decoration-style: dashed; text-underline-offset: 3px;
+    text-decoration-color: #555;
+    transition: color 0.15s;
+  }
+  .author-btn:hover { color: #7c9fff; text-decoration-color: #4f6ef7; }
+  .author-popup {
+    position: fixed; z-index: 9999;
+    width: 280px;
+    background: #1a1d27; border: 1px solid #3a3d54;
+    border-radius: 12px; padding: 16px;
+    box-shadow: 0 8px 40px #000c;
+    display: none;
+    animation: popIn 0.18s ease;
+  }
+  .author-popup.visible { display: block; }
+  .ap-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .ap-name { font-size: 14px; font-weight: 700; color: #fff; }
+  .ap-close { background: none; border: none; cursor: pointer; color: #555; font-size: 18px; line-height: 1; padding: 0; }
+  .ap-close:hover { color: #aaa; }
+  .ap-body { font-size: 12px; color: #aaa; line-height: 1.75; }
+  .ap-loading { display: flex; align-items: center; gap: 6px; color: #555; font-size: 12px; }
+  .ap-dot { animation: apBlink 1s infinite; }
+  .ap-dot:nth-child(2) { animation-delay: 0.2s; }
+  .ap-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes apBlink { 0%,100%{opacity:0.15} 50%{opacity:1} }
   .copy-hint {
     margin-top: 14px; padding: 14px 16px;
     background: #0f1117; border: 1px solid #2a2610;
@@ -231,6 +261,17 @@
 </style>
 </head>
 <body>
+
+<!-- 저자 팝업 -->
+<div class="author-popup" id="authorPopup">
+  <div class="ap-header">
+    <span class="ap-name" id="apName"></span>
+    <button class="ap-close" onclick="closeAuthorPopup()">✕</button>
+  </div>
+  <div class="ap-body" id="apBody">
+    <div class="ap-loading"><span class="ap-dot">●</span><span class="ap-dot">●</span><span class="ap-dot">●</span> AI가 저자 정보를 요약 중...</div>
+  </div>
+</div>
 
 <!-- ★ 즐겨찾기 섹션 (항상 상단) -->
 <div class="fav-section" id="favSection">
@@ -291,10 +332,6 @@
     <div class="field">
       <label>끝 등록번호</label>
       <input type="text" id="end" value="EE0545750" placeholder="EE0545750">
-    </div>
-    <div class="field" style="max-width:100px;">
-      <label>딜레이(ms)</label>
-      <input type="number" id="delay" value="300" min="100" max="2000">
     </div>
   </div>
 
@@ -393,7 +430,7 @@ function makeRow(row, isFav) {
     </td>
     <td class="reg">${row.reg}</td>
     <td class="title ${!row.title ? 'empty' : ''}">${row.title || '—'}</td>
-    <td>${row.author || ''}</td>
+    <td>${row.author ? `<button class="author-btn" onclick="showAuthorPopup(event, '${row.author.replace(/'/g,"\\'")}', '${(row.title||'').replace(/'/g,"\\'")}')}">${row.author}</button>` : ''}</td>
     <td>${row.publisher || ''}</td>
     <td>${row.year || ''}</td>
     <td style="font-family:monospace;font-size:11px;white-space:nowrap">${row.callNumber || ''}</td>
@@ -484,7 +521,7 @@ function parsePublication(pub) {
 async function startFetch() {
   const startReg = parseReg(document.getElementById('start').value);
   const endReg   = parseReg(document.getElementById('end').value);
-  const delay    = parseInt(document.getElementById('delay').value) || 300;
+  const delay = 1;
 
   if (!startReg || !endReg || startReg.prefix !== endReg.prefix) {
     alert('등록번호 형식을 확인해주세요 (예: EE0545600)');
@@ -707,6 +744,54 @@ function downloadExcel() {
 
   XLSX.writeFile(wb, '성균관대_신착도서목록.xlsx');
 }
+
+// ── 저자 팝업 (AI 요약) ─────────────────────────────────
+const authorCache = {};
+
+function closeAuthorPopup() {
+  document.getElementById('authorPopup').classList.remove('visible');
+}
+
+async function showAuthorPopup(e, author, bookTitle) {
+  e.stopPropagation();
+  const popup = document.getElementById('authorPopup');
+  const apName = document.getElementById('apName');
+  const apBody = document.getElementById('apBody');
+
+  apName.textContent = author;
+  apBody.innerHTML = '<div class="ap-loading"><span class="ap-dot">●</span><span class="ap-dot">●</span><span class="ap-dot">●</span> AI가 저자 정보를 요약 중...</div>';
+
+  // 버튼 위치 기준으로 팝업 위치 조정
+  const rect = e.currentTarget.getBoundingClientRect();
+  let top = rect.bottom + window.scrollY + 8;
+  let left = rect.left + window.scrollX;
+  if (left + 290 > window.innerWidth) left = window.innerWidth - 295;
+  popup.style.top = top + 'px';
+  popup.style.left = left + 'px';
+  popup.classList.add('visible');
+
+  if (authorCache[author]) {
+    apBody.textContent = authorCache[author];
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/author?author=${encodeURIComponent(author)}&title=${encodeURIComponent(bookTitle)}`);
+    const data = await res.json();
+    const text = data.bio || '정보를 불러올 수 없어요.';
+    authorCache[author] = text;
+    apBody.textContent = text;
+  } catch(err) {
+    apBody.textContent = '저자 정보를 불러오는 중 오류가 발생했어요.';
+  }
+}
+
+document.addEventListener('click', function(e) {
+  const popup = document.getElementById('authorPopup');
+  if (popup && !popup.contains(e.target) && !e.target.classList.contains('author-btn')) {
+    popup.classList.remove('visible');
+  }
+});
 
 // 초기 렌더링
 renderFavSection();
