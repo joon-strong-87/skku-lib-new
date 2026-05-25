@@ -297,37 +297,30 @@
   </div>
 </div>
 
-<!-- 퀵셋 팝업 -->
-<div class="quickset-overlay" id="quicksetOverlay" onclick="handleOverlayClick(event)">
-  <div class="quickset-modal">
-    <h2>⚡ 빠른 선택</h2>
-    <p class="qs-sub">2025년 5월 25일 기준 최신 등록번호 기준으로 자동 입력돼요</p>
-
-    <div class="qs-lib">
-      <div class="qs-lib-label">중앙학술정보관 · 법학도서관</div>
-      <div class="qs-btns" id="btnsCentral"></div>
-    </div>
-
-    <div class="qs-lib">
-      <div class="qs-lib-label">삼성학술정보관</div>
-      <div class="qs-btns" id="btnsSamsung"></div>
-    </div>
-
-    <button class="qs-close" onclick="closeQuickset()">닫기</button>
-  </div>
-</div>
-
 <!-- 수집기 카드 -->
 <div class="card">
   <h1>📚 성균관대 신착도서 수집기</h1>
   <p class="subtitle">등록번호 범위를 입력하면 제목·저자·출판사·출판년도를 자동으로 가져와요</p>
 
-  <button class="btn btn-quickset" onclick="openQuickset()" style="margin-bottom:20px">⚡ 빠른 선택</button>
+  <!-- 빠른 선택 인라인 -->
+  <div style="background:#13161f;border:1px solid #1e2130;border-radius:12px;padding:18px 20px;margin:20px 0;">
+    <div style="font-size:11px;color:#444;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:14px;">
+      ⚡ 빠른 선택 <span id="quicksetDate" style="font-weight:400;text-transform:none;letter-spacing:0;"></span>
+    </div>
+    <div class="qs-lib" style="margin-bottom:12px;">
+      <div class="qs-lib-label">중앙학술정보관 · 법학도서관</div>
+      <div class="qs-btns" id="btnsCentral"></div>
+    </div>
+    <div class="qs-lib" style="margin-bottom:0;">
+      <div class="qs-lib-label">삼성학술정보관</div>
+      <div class="qs-btns" id="btnsSamsung"></div>
+    </div>
+  </div>
 
   <div class="row">
     <div class="field">
       <label>시작 등록번호</label>
-      <input type="text" id="start" value="EE0545600" placeholder="EE0545600">
+      <input type="text" id="start" value="EE0545700" placeholder="EE0545700">
     </div>
     <div class="field">
       <label>끝 등록번호</label>
@@ -654,9 +647,16 @@ const QUICKSET = {
   central: { prefix: 'EM', latest: 1130687, digits: 7 },
   samsung: { prefix: 'EE', latest: 545765,  digits: 7 }
 };
-const COUNTS = [10, 20, 30, 50, 100, 200, 300, 400];
+const COUNTS = [10, 20, 50, 100];
 
 function buildQuicksetBtns() {
+  // 날짜 표시
+  const dateEl = document.getElementById('quicksetDate');
+  if (dateEl) {
+    const now = new Date();
+    dateEl.textContent = `· ${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 기준`;
+  }
+
   ['central','samsung'].forEach(lib => {
     const { prefix, latest, digits } = QUICKSET[lib];
     const wrap = document.getElementById(lib === 'central' ? 'btnsCentral' : 'btnsSamsung');
@@ -666,7 +666,7 @@ function buildQuicksetBtns() {
       const endReg   = prefix + String(latest).padStart(digits, '0');
       const btn = document.createElement('button');
       btn.className = 'qs-btn';
-      btn.textContent = `최근 ${n}권`;
+      btn.textContent = `${n}권`;
       btn.title = `${startReg} ~ ${endReg}`;
       btn.onclick = () => applyQuickset(startReg, endReg);
       wrap.appendChild(btn);
@@ -677,17 +677,6 @@ function buildQuicksetBtns() {
 function applyQuickset(start, end) {
   document.getElementById('start').value = start;
   document.getElementById('end').value = end;
-  closeQuickset();
-}
-
-function openQuickset() {
-  document.getElementById('quicksetOverlay').classList.add('open');
-}
-function closeQuickset() {
-  document.getElementById('quicksetOverlay').classList.remove('open');
-}
-function handleOverlayClick(e) {
-  if (e.target === document.getElementById('quicksetOverlay')) closeQuickset();
 }
 
 function showToast(msg, duration=2800) {
