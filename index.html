@@ -423,7 +423,7 @@ function makeRow(row, isFav) {
     </td>
     <td class="reg">${row.reg}</td>
     <td class="title ${!row.title ? 'empty' : ''}">${row.title ? `<a href="https://search.kyobobook.co.kr/search?keyword=${encodeURIComponent(row.title)}" target="_blank" style="color:#ccc;text-decoration:underline;text-decoration-style:dashed;text-underline-offset:3px;">${row.title}</a>` : '—'}</td>
-    <td>${row.author ? `<a href="https://search.kyobobook.co.kr/search?keyword=${encodeURIComponent(row.author)}" target="_blank" style="color:#ccc;text-decoration:underline;text-decoration-style:dashed;text-underline-offset:3px;">${row.author}</a>` : ''}</td>
+    <td>${row.author ? `<a href="https://search.kyobobook.co.kr/search?keyword=${encodeURIComponent(row.author)}" target="_blank" class="author-btn" data-author="${row.author.replace(/"/g,'&quot;')}" data-title="${(row.title||'').replace(/"/g,'&quot;')}" data-isbn="${row.isbn||''}" style="color:#ccc;text-decoration:underline;text-decoration-style:dashed;text-underline-offset:3px;">${row.author}</a>` : ''}</td>
     <td>${row.publisher || ''}</td>
     <td>${row.year || ''}</td>
     <td style="font-family:monospace;font-size:11px;white-space:nowrap">${row.callNumber || ''}</td>
@@ -576,7 +576,8 @@ async function startFetch() {
           status: bv.cState || '',
           location: bv.name || '',
           dateReceived: item.dateReceived || '',
-          pub: item.publication || ''
+          pub: item.publication || '',
+          isbn: item.isbn || ''
         };
         allResults.push(row);
         if (favorites[reg]) { favorites[reg] = row; saveFavorites(); }
@@ -747,14 +748,16 @@ document.addEventListener('click', async function(e) {
 
   // 저자 버튼 클릭
   if (e.target.classList.contains('author-btn')) {
+    e.preventDefault();
     const btn = e.target;
     const author = btn.dataset.author;
     const bookTitle = btn.dataset.title || '';
+    const isbn = btn.dataset.isbn || '';
     const apName = document.getElementById('apName');
     const apBody = document.getElementById('apBody');
 
     apName.textContent = author;
-    apBody.innerHTML = '<div class="ap-loading"><span class="ap-dot">●</span><span class="ap-dot">●</span><span class="ap-dot">●</span> AI가 저자 정보를 요약 중...</div>';
+    apBody.innerHTML = '<div class="ap-loading"><span class="ap-dot">●</span><span class="ap-dot">●</span><span class="ap-dot">●</span> 저자 정보를 불러오는 중...</div>';
 
     const rect = btn.getBoundingClientRect();
     let top = rect.bottom + window.scrollY + 8;
@@ -770,7 +773,7 @@ document.addEventListener('click', async function(e) {
     }
 
     try {
-      const res = await fetch(`/api/author?author=${encodeURIComponent(author)}&title=${encodeURIComponent(bookTitle)}`);
+      const res = await fetch(`/api/author?author=${encodeURIComponent(author)}&title=${encodeURIComponent(bookTitle)}&isbn=${encodeURIComponent(isbn)}`);
       const data = await res.json();
       const text = data.bio || '정보를 불러올 수 없어요.';
       authorCache[author] = text;
